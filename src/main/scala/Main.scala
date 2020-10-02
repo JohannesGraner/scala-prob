@@ -5,6 +5,8 @@ object Main extends App {
   println(testProb.checkDensity)
   println(testProb.density)
   println(testProb.distribution)
+  println(testProb.mean)
+  println(testProb.variance)
 
   println()
   testProb.convolution(testProb).print

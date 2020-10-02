@@ -1,15 +1,21 @@
 package probability
 
+import scala.math.{abs, pow}
+
 case class DiscreteProb(
     density: Map[Int, Double]
 ) {
     // Have to settle for 'close enough' due to floating point calculations.
-    def checkDensity: Boolean = Math.abs(density.values.sum - 1.0) < 1e-10
+    def checkDensity: Boolean = abs(density.values.sum - 1.0) < 1e-10
     def distribution: Map[Int, Double] = {
         density.keys.toSeq.sorted.scanLeft((0,0.0)){ case ((m,fm),n) => 
             (n, fm + density(n))
         }.tail.toMap
     }
+
+    def moment(k: Int): Double = density.map( p => pow(p._1,k) * p._2 ).sum
+    def mean: Double = moment(1)
+    def variance: Double = moment(2) - pow(mean,2)
 
     def percentile(p: Double): Int = {
         if (p < 0 || p > 1)

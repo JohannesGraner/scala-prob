@@ -33,7 +33,7 @@ case class DiscreteProb(
             else 
                 (g.density, f.density)
         shortDens
-            .map{ case (m: Int, gm: Double) => longDens.getOrElse(n-m, 0.0)*gm }
+            .map( p => longDens.getOrElse(n-p._1, 0.0)*p._2 )
             .sum
     }
 
@@ -42,7 +42,8 @@ case class DiscreteProb(
         val otherKeys = other.density.keys
         DiscreteProb(
             ( thisKeys.min + otherKeys.min to thisKeys.max + otherKeys.max )
-                .map( n => (n, conv(n, this, other)) ).toMap )
+                .map( n => (n, conv(n, this, other)) ).toMap 
+        )
     }
 
     def print: Unit = println(density.toSeq.sortBy( _._1 ))

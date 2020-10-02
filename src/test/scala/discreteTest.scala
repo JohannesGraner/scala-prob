@@ -1,10 +1,11 @@
-package probability
+package scalaprob.probability
 
 import scala.math.abs
 
 class DiscreteTest extends org.scalatest.funsuite.AnyFunSuite {
 
-    val d6 = DiscreteProb(((1 to 6).toSeq zip Seq.fill(6)(1.0/6)).toMap)
+    val d6 = DeMoivre(6)
+    val ber = Bernoulli(0.5)
 
     def approxComp(a: Double, b: Double, tol: Double = 1e-10): Boolean = {
         abs(a - b) < tol
@@ -25,10 +26,14 @@ class DiscreteTest extends org.scalatest.funsuite.AnyFunSuite {
     }
 
     test("10d6") {
-        val tenD6: DiscreteProb = Seq.fill(9)(d6).fold(d6)(_.convolution(_))
+        val tenD6 = Seq.fill(9)(d6).foldLeft(d6.toDiscreteProb){ case (p1: DiscreteProb, p2: DiscreteTrait) => p1.convolution(p2) }
         assert(tenD6.checkDensity)
         assert(approxComp(tenD6.mean, 5*7))
         assert(tenD6.getProb(9) == 0)
+    }
+
+    test("bernoulli") {
+        assert(ber.convolution(ber).isInstanceOf[Binomial])
     }
 
 }

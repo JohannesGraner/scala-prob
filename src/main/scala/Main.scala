@@ -1,7 +1,7 @@
-package probability
+package scalaprob.probability
 
 object Main extends App {
-  val testProb = DiscreteProb(((1 to 6).toSeq zip Seq.fill(6)(1.0/6)).toMap)
+  val testProb = DeMoivre(6)
   println(testProb.checkDensity)
   println(testProb.density)
   println(testProb.distribution)

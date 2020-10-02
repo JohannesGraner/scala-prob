@@ -17,6 +17,8 @@ case class DiscreteProb(
     def mean: Double = moment(1)
     def variance: Double = moment(2) - pow(mean,2)
 
+    def getProb(k: Int): Double = density.getOrElse(k, 0.0)
+
     def percentile(p: Double): Int = {
         if (p < 0 || p > 1)
             throw new IllegalArgumentException(s"$p is not between 0 and 1")
@@ -31,7 +33,7 @@ case class DiscreteProb(
             else 
                 (g.density, f.density)
         shortDens
-            .map{ case (m: Int, gm: Double) => longDens.get(n-m).getOrElse(0.0)*gm }
+            .map{ case (m: Int, gm: Double) => longDens.getOrElse(n-m, 0.0)*gm }
             .sum
     }
 

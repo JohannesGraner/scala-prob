@@ -9,5 +9,5 @@ object Main extends App {
   println(testProb.variance)
 
   println()
-  testProb.convolution(testProb).print
+  println(testProb.convolution(testProb))
 }

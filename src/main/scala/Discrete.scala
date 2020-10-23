@@ -31,7 +31,7 @@ trait DiscreteTrait {
 
   def getProb(k: Int): Rational = density.getOrElse(k, Rational.zero)
 
-  def percentile(p: Double): Int = {
+  def percentile(p: Rational): Int = {
     if (p < 0 || p > 1)
       throw new IllegalArgumentException(s"$p is not between 0 and 1")
     else
@@ -86,7 +86,7 @@ case class DeMoivre(k: Int) extends DiscreteTrait {
     ((1 to k).toSeq zip Seq.fill(k)(Rational.one / k)).toMap
 }
 
-case class Bernoulli(p: Double) extends DiscreteTrait {
+case class Bernoulli(p: Rational) extends DiscreteTrait {
   override val parameter = p
   override val density = Map((0, 1 - p), (1, p))
 
@@ -98,12 +98,12 @@ case class Bernoulli(p: Double) extends DiscreteTrait {
   }
 }
 
-case class Binomial(p: Double, n: Int) extends DiscreteTrait {
+case class Binomial(p: Rational, n: Int) extends DiscreteTrait {
   override val parameter: Any = (p, n)
   override val density = {
-    val binoms = (2 to n).scanLeft(Rational.one)((k, cnk) => (n + 1 - k) / k * cnk).toSeq
-    ((1 to n).toSeq zip binoms).map {
-      case (k: Int, cnk: Rational) => (k, cnk * pow(p, k) * pow(1 - p, n - k))
+    val binoms = (1 to n).scanLeft(Rational.one)((nChooseK, k) => (n + 1 - k) * nChooseK / k).toSeq
+    ((0 to n).toSeq zip binoms).map {
+      case (k: Int, nChooseK: Rational) => (k, nChooseK * p.pow(k) * (1 - p).pow(n - k))
     }.toMap
   }
 
@@ -111,7 +111,7 @@ case class Binomial(p: Double, n: Int) extends DiscreteTrait {
     if (other.isInstanceOf[Bernoulli] && other.parameter == p)
       Binomial(p, n + 1)
     else if (other.isInstanceOf[Binomial] && other.parameter == parameter)
-      Binomial(p, other.parameter.asInstanceOf[(Double, Int)]._2 + n)
+      Binomial(p, other.parameter.asInstanceOf[(Rational, Int)]._2 + n)
     else
       this.toDiscreteProb.convolution(other)
   }

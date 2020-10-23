@@ -9,6 +9,11 @@ class DiscreteTest extends org.scalatest.funsuite.AnyFunSuite {
   val ber = Bernoulli(Rational(1,3))
   val bin = Binomial(Rational(1,3), 3)
 
+  test("Shifting") {
+    assert(d6.shift(2).getProb(7) == Rational(1,6))
+    println(d6.shift(2))
+  }
+
   test("1D6") {
     assert(d6.checkDensity)
     assert(d6.mean == 3.5)

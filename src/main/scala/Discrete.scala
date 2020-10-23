@@ -25,9 +25,13 @@ trait DiscreteTrait {
       .toMap
   }
 
+  def shift(k: Int): DiscreteProb = {
+    DiscreteProb(density.map(kvPair => (kvPair._1 + k, kvPair._2)))
+  }
+
   def moment(k: Int): Rational = density.map(p => pow(p._1, k) * p._2).sum
   def mean: Rational = moment(1)
-  def variance: Rational = moment(2) - mean*mean
+  def variance: Rational = moment(2) - mean * mean
 
   def getProb(k: Int): Rational = density.getOrElse(k, Rational.zero)
 
@@ -61,7 +65,10 @@ trait DiscreteTrait {
         )
     }*/
 
-  override def toString: String = density.toSeq.sortBy(_._1).toString
+  override def toString: String = {
+    val lines = density.toSeq.sortBy(_._1).map { case (k, p) => "k: %d,".format(k).padTo(6, ' ') + " p: %.4f".format(p.floatValue) + " (%s)".format(p)}
+    lines.tail.foldLeft(lines.head + "\n")(_ + _ + "\n")
+  } 
 
   def toDiscreteProb: DiscreteProb = DiscreteProb(density)
 }
@@ -75,6 +82,7 @@ case class DiscreteProb(override val density: Map[Int, Rational])
     DiscreteProb(
       (thisKeys.min + otherKeys.min to thisKeys.max + otherKeys.max)
         .map(n => (n, conv(n, this, other)))
+        .filter(_._2 != Rational.zero)
         .toMap
     )
   }
@@ -101,9 +109,12 @@ case class Bernoulli(p: Rational) extends DiscreteTrait {
 case class Binomial(p: Rational, n: Int) extends DiscreteTrait {
   override val parameter: Any = (p, n)
   override val density = {
-    val binoms = (1 to n).scanLeft(Rational.one)((nChooseK, k) => (n + 1 - k) * nChooseK / k).toSeq
+    val binoms = (1 to n)
+      .scanLeft(Rational.one)((nChooseK, k) => (n + 1 - k) * nChooseK / k)
+      .toSeq
     ((0 to n).toSeq zip binoms).map {
-      case (k: Int, nChooseK: Rational) => (k, nChooseK * p.pow(k) * (1 - p).pow(n - k))
+      case (k: Int, nChooseK: Rational) =>
+        (k, nChooseK * p.pow(k) * (1 - p).pow(n - k))
     }.toMap
   }
 

@@ -8,6 +8,8 @@ import spire.implicits._
 
 trait DiscreteTrait {
 
+  protected def name = {val keys = density.keySet; f"Discrete Probability from ${keys.min} to ${keys.max}."}
+
   def density: Map[Int, Rational]
 
   implicit val num = spire.compat.numeric[Rational]
@@ -66,7 +68,7 @@ trait DiscreteTrait {
     }*/
 
   override def toString: String = {
-    val lines = density.toSeq.sortBy(_._1).map { case (k, p) => "k: %d,".format(k).padTo(6, ' ') + " p: %.4f".format(p.floatValue) + " (%s)".format(p)}
+    val lines = name +: density.toSeq.sortBy(_._1).map { case (k, p) => "k: %d,".format(k).padTo(6, ' ') + " p: %.4f".format(p.floatValue) + " (%s)".format(p)}
     lines.tail.foldLeft(lines.head + "\n")(_ + _ + "\n")
   } 
 
@@ -90,12 +92,14 @@ case class DiscreteProb(override val density: Map[Int, Rational])
 
 case class DeMoivre(k: Int) extends DiscreteTrait {
   override val parameter = k
+  override protected val name: String = f"Uniform{1,..,$k}"
   override val density: Map[Int, Rational] =
     ((1 to k).toSeq zip Seq.fill(k)(Rational.one / k)).toMap
 }
 
 case class Bernoulli(p: Rational) extends DiscreteTrait {
   override val parameter = p
+  override protected val name: String = f"Bernoulli($p)"
   override val density = Map((0, 1 - p), (1, p))
 
   override def convolution(other: DiscreteTrait): DiscreteTrait = {
@@ -108,6 +112,7 @@ case class Bernoulli(p: Rational) extends DiscreteTrait {
 
 case class Binomial(p: Rational, n: Int) extends DiscreteTrait {
   override val parameter: Any = (p, n)
+  override protected val name: String = f"Binomial($n, $p)"
   override val density = {
     val binoms = (1 to n)
       .scanLeft(Rational.one)((nChooseK, k) => (n + 1 - k) * nChooseK / k)

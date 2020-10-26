@@ -41,7 +41,7 @@ trait DiscreteTrait {
     if (p < 0 || p > 1)
       throw new IllegalArgumentException(s"$p is not between 0 and 1")
     else
-      distribution.filter(_._2 <= p).map(_._1).max
+      distribution.filter(_._2 >= p).map(_._1).minOption.getOrElse(density.keys.max)
   }
 
   protected def conv(n: Int, f: DiscreteTrait, g: DiscreteTrait): Rational = {

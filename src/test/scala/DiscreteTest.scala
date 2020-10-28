@@ -14,6 +14,10 @@ class DiscreteTest extends org.scalatest.funsuite.AnyFunSuite {
     println(d6.shift(2))
   }
 
+  test("Probability of Set") {
+    assert(d6.getProb(Set(1,2)) == Rational(1,3))
+  }
+
   test("1D6") {
     assert(d6.checkDensity)
     assert(d6.mean == 3.5)

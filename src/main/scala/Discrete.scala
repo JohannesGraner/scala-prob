@@ -36,6 +36,7 @@ trait DiscreteTrait {
   def variance: Rational = moment(2) - mean * mean
 
   def getProb(k: Int): Rational = density.getOrElse(k, Rational.zero)
+  def getProb(s: Set[Int]): Rational = s.toSeq.map(getProb(_)).sum
 
   def percentile(p: Rational): Int = {
     if (p < 0 || p > 1)
@@ -95,6 +96,12 @@ case class DeMoivre(k: Int) extends DiscreteTrait {
   override protected val name: String = f"Uniform{1,..,$k}"
   override val density: Map[Int, Rational] =
     ((1 to k).toSeq zip Seq.fill(k)(Rational.one / k)).toMap
+}
+
+case class OnePoint(k: Int) extends DiscreteTrait {
+  override val parameter = k
+  override protected def name: String = f"One-point distribution at $k"
+  override def density: Map[Int,Rational] = Map(k -> Rational.one)
 }
 
 case class Bernoulli(p: Rational) extends DiscreteTrait {
